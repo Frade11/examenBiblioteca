@@ -12,19 +12,17 @@ if ($id) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $t = $_POST['Titlu'];
-    $a = $_POST['Autor'];
-    $an = $_POST['Anul_publicarii'];
-    $g = $_POST['Gen'];
-    $c = $_POST['Cantitate'];
+    $t = trim($_POST['Titlu']);
+    $a = trim($_POST['Autor']);
+    $an = (int)$_POST['Anul_publicarii'];
+    $g = trim($_POST['Gen']);
+    $c = (int)$_POST['Cantitate'];
 
     if ($id) {
-        // update
         $sql = "UPDATE carti SET Titlu=?, Autor=?, Anul_publicarii=?, Gen=?, Cantitate=? WHERE ID_carte=?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssisii", $t, $a, $an, $g, $c, $id);
     } else {
-        // insert
         $sql = "INSERT INTO carti (Titlu, Autor, Anul_publicarii, Gen, Cantitate) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssisi", $t, $a, $an, $g, $c);
@@ -32,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($stmt->execute()) {
         header("Location: index.php?msg=Operatiune reusita");
+        exit;
     } else {
         $error = "Eroare la salvare: " . $conn->error;
     }
@@ -42,42 +41,77 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Formular Carte</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $id ? 'Editeaza' : 'Adauga' ?> Carte - BIBLIO-SYS</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-light p-5">
-    <div class="container" style="max-width: 500px;">
-        <div class="card shadow-lg border-0">
-            <div class="card-body p-4">
-                <h4 class="mb-4 text-center"><?= $id ? 'Editează' : 'Adaugă' ?> Carte</h4>
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Titlu</label>
-                        <input type="text" name="Titlu" class="form-control" value="<?= htmlspecialchars($book['Titlu']) ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Autor</label>
-                        <input type="text" name="Autor" class="form-control" value="<?= htmlspecialchars($book['Autor']) ?>" required>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label class="form-label">An</label>
-                            <input type="number" name="Anul_publicarii" class="form-control" value="<?= $book['Anul_publicarii'] ?>">
-                        </div>
-                        <div class="col">
-                            <label class="form-label">Cantitate</label>
-                            <input type="number" name="Cantitate" class="form-control" value="<?= $book['Cantitate'] ?>">
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label">Gen</label>
-                        <input type="text" name="Gen" class="form-control" value="<?= htmlspecialchars($book['Gen']) ?>">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Salvează Datele</button>
-                    <a href="index.php" class="btn btn-link w-100 text-muted mt-2">Înapoi la listă</a>
-                </form>
-            </div>
+<body>
+
+<nav class="main-nav">
+    <div class="nav-container">
+        <a class="brand" href="index.php">BIBLIO<span>SYS</span></a>
+        <div class="nav-links">
+            <a href="index.php" class="active">Carti</a>
+            <a href="readers.php">Cititori</a>
         </div>
     </div>
+</nav>
+
+<main class="form-wrapper">
+    <div class="form-card">
+        <header class="form-header">
+            <h2><?= $id ? 'Editeaza' : 'Adauga' ?> Carte</h2>
+            <p>Introdu detaliile volumului in baza de date</p>
+        </header>
+
+        <?php if(isset($error)): ?>
+            <div class="alert-box error">
+                <span class="alert-icon">⚠️</span>
+                <p><?= $error ?></p>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" class="styled-form">
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Titlu Carte</label>
+                    <input type="text" name="Titlu" value="<?= htmlspecialchars($book['Titlu']) ?>" placeholder="Ex: Cel mai iubit dintre pamanteni" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Autor</label>
+                    <input type="text" name="Autor" value="<?= htmlspecialchars($book['Autor']) ?>" placeholder="Ex: Marin Preda" required>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="input-group">
+                    <label>An Publicare</label>
+                    <input type="number" name="Anul_publicarii" value="<?= $book['Anul_publicarii'] ?>" placeholder="2024">
+                </div>
+                <div class="input-group">
+                    <label>Stoc (buc.)</label>
+                    <input type="number" name="Cantitate" value="<?= $book['Cantitate'] ?>" placeholder="0">
+                </div>
+            </div>
+
+            <div class="form-row mt-1">
+                <div class="input-group full">
+                    <label>Gen Literar</label>
+                    <input type="text" name="Gen" value="<?= htmlspecialchars($book['Gen']) ?>" placeholder="Ex: Roman, SF, Istorie">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">Salveaza Modificarile</button>
+                <a href="index.php" class="btn btn-cancel">Inapoi la lista</a>
+            </div>
+        </form>
+    </div>
+</main>
+
 </body>
 </html>

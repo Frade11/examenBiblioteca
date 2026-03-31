@@ -18,9 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['Email']);
     $data = $_POST['Data_inregistrarii'];
 
-    // Validare simplă
     if (empty($nume) || empty($prenume) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Te rugăm să completezi corect numele, prenumele și adresa de email.";
+        $error = "Te rugam sa completezi corect numele, prenumele si adresa de email.";
     } else {
         if ($id) {
             $sql = "UPDATE cititori SET Nume=?, Prenume=?, Telefon=?, Email=?, Data_inregistrarii=? WHERE ID_cititor=?";
@@ -46,45 +45,80 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Formular Cititor</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $id ? 'Editeaza' : 'Inregistreaza' ?> Cititor - BIBLIO-SYS</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-light p-5">
-    <div class="container" style="max-width: 500px;">
-        <div class="card shadow border-0">
-            <div class="card-body p-4">
-                <h4 class="mb-4"><?= $id ? 'Editează' : 'Înregistrează' ?> Cititor</h4>
-                
-                <?php if(isset($error)): ?>
-                    <div class="alert alert-danger"><?= $error ?></div>
-                <?php endif; ?>
+<body class="bg-light">
 
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Nume</label>
-                        <input type="text" name="Nume" class="form-control" value="<?= htmlspecialchars($reader['Nume']) ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Prenume</label>
-                        <input type="text" name="Prenume" class="form-control" value="<?= htmlspecialchars($reader['Prenume']) ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Telefon</label>
-                        <input type="text" name="Telefon" class="form-control" value="<?= htmlspecialchars($reader['Telefon']) ?>">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="Email" class="form-control" value="<?= htmlspecialchars($reader['Email']) ?>" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label">Data Înregistrării</label>
-                        <input type="date" name="Data_inregistrarii" class="form-control" value="<?= $reader['Data_inregistrarii'] ?>">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Salvează Cititor</button>
-                    <a href="readers.php" class="btn btn-link w-100 text-muted mt-2">Renunță</a>
-                </form>
-            </div>
+<nav class="main-nav">
+    <div class="nav-container">
+        <a class="brand" href="index.php">BIBLIO<span>SYS</span></a>
+        <div class="nav-links">
+            <a href="index.php">Carti</a>
+            <a href="readers.php" class="active">Cititori</a>
         </div>
     </div>
+</nav>
+
+<main class="form-wrapper">
+    <div class="form-card">
+        <header class="form-header">
+            <h2><?= $id ? 'Editeaza' : 'Inregistreaza' ?> Cititor</h2>
+            <p>Completeaza informatiile de contact ale cititorului</p>
+        </header>
+
+        <?php if(isset($error)): ?>
+            <div class="alert-box error">
+                <span class="alert-icon">⚠️</span>
+                <p><?= $error ?></p>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" class="styled-form">
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Nume</label>
+                    <input type="text" name="Nume" value="<?= htmlspecialchars($reader['Nume']) ?>" placeholder="Ex: Nume" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Prenume</label>
+                    <input type="text" name="Prenume" value="<?= htmlspecialchars($reader['Prenume']) ?>" placeholder="Ex: Prenume" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Telefon</label>
+                    <input type="text" name="Telefon" value="<?= htmlspecialchars($reader['Telefon']) ?>" placeholder="07xx xxx xxx">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Email</label>
+                    <input type="email" name="Email" value="<?= htmlspecialchars($reader['Email']) ?>" placeholder="nume@exemplu.com" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group full">
+                    <label>Data Inregistrarii</label>
+                    <input type="date" name="Data_inregistrarii" value="<?= $reader['Data_inregistrarii'] ?>">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-save">Salveaza Cititorul</button>
+                <a href="readers.php" class="btn btn-cancel">Renunta</a>
+            </div>
+        </form>
+    </div>
+</main>
+
 </body>
 </html>
